@@ -47,9 +47,8 @@ Temporary Items
 .apdisk
 
 
-# Images
-*.png
-*.gif
+# Images (Too many images in the prime task to sync)
+images/prime/task
 
 # Data
 *.csv
