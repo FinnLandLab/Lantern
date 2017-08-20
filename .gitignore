@@ -55,5 +55,8 @@ images/prime/task
 data/*
 
 # Pycharm related files
-.idea/*
+.idea/
+
+# Psychopy related files (python compiled files)
+*.pyc
 
