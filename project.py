@@ -53,10 +53,10 @@ PRIME_IMAGE_DISPLAY_TIME = 0  # 1.5
 EXPERIMENT_NAME = "Lantern"
 
 # Go through a practice run?
-PRACTICE_RUN = False
+PRACTICE_RUN = True
 
 # Go through the n-back task?
-N_BACK_TASK = False
+N_BACK_TASK = True
 
 # Go through the prime task? (Prime images will still appear in the n-back task)
 PRIME_TASK = True
@@ -109,7 +109,7 @@ experiment_info['participant number'] = int("".join([c for c in experiment_info[
 experiment_info['date'] = time.strftime('%c')
 
 # create a window
-window = visual.Window(fullscr=False, monitor="testMonitor", units="cm", color=1)
+window = visual.Window(fullscr=True, monitor="testMonitor", units="cm", color=1)
 
 # Define some n-back images for quick access later
 n_back_images = []
@@ -121,7 +121,7 @@ for i in range(8):
 
 
 # Make a prime image template to use later
-image_file = "images/prime/task/A/accordion/accordion_8"
+image_file = "images/prime/task/A/accordion/accordion_8.png"
 prime_image = visual.ImageStim(win=window, image=image_file)
 prime_image.size *= PRIME_TASK_IMG_HEIGHT / prime_image.size[1]
 prime_image.pos = (0, -PRIME_TASK_IMG_HEIGHT / 2)
@@ -308,7 +308,7 @@ def get_lure_info(num_back, image_id, last_image_ids):
     return 0, ''
 
 
-def show_n_back_block(block, num_back, test_number, image_id_column=2):
+def show_n_back_block(block, num_back, test_number, image_id_column=2, save=True):
     """ Shows a block of images in the n-back tasks
 
     @param lst block: A matrix containing the ordering info for this block
@@ -356,18 +356,18 @@ def show_n_back_block(block, num_back, test_number, image_id_column=2):
             wrong_answers += 1
 
         # Save some data
-        data_point = [experiment_info['Section'],
-                      experiment_info['Participant'], experiment_info['Age group'],
-                      experiment_info['date'],
-                      experiment_info['blocks_reversed'],
-                      experiment_info['prime list name'], prime_name,
-                      num_back, order_set, position_in_block + 1,
-                      image_id, n_back_image_id,
-                      lure, lure_kind,
-                      expected_responce,
-                      user_responce, reaction_time]
-
-        experiment_info['data'].append(data_point)
+        if save:
+            data_point = [experiment_info['Section'],
+                          experiment_info['Participant'], experiment_info['Age group'],
+                          experiment_info['date'],
+                          experiment_info['blocks_reversed'],
+                          experiment_info['prime list name'], prime_name,
+                          num_back, order_set, position_in_block + 1,
+                          image_id, n_back_image_id,
+                          lure, lure_kind,
+                          expected_responce,
+                          user_responce, reaction_time]
+            experiment_info['data'].append(data_point)
 
         # Add image_id to last_image_ids limiting it's size to 3
         last_image_ids = [image_id] + last_image_ids[:2]
@@ -403,7 +403,7 @@ def n_back_task():
             show_images('prompts', '{}-back'.format(i + 1))
 
             # Go through this block without saving the data
-            show_n_back_block(block, i + 1, i + 1, image_id_column=0)
+            show_n_back_block(block, i + 1, i + 1, image_id_column=0, save=False)
 
     # Show instructions before actual test
     show_images("instructions", "test")
@@ -555,7 +555,7 @@ def prime_task():
         show_images('instructions', 'practice')
         practice_paths = glob.glob('images\\prime\\practice\\*')
         for practice_path in practice_paths:
-            identify_prime_image(practice_paths)
+            identify_prime_image(practice_path)
 
     # Tell the user we are gonna start the real deal
     show_images('instructions', 'test')
