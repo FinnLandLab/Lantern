@@ -315,6 +315,7 @@ def show_n_back_block(block, num_back, test_number, image_id_column=2, save=True
     @param int num_back: The type of n-back task
     @param int test_number: What test number this is, used only for output
     @param int image_id_column: the column of the block matrix with the image_id information
+    @param bool save: Whether the data should be saved to experiment['data'] or not
     @return: the number of wrong answers
     @rtype: int
     """
