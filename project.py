@@ -43,11 +43,11 @@ DATA_NAMES_PRIME = ["experiment",
 DATA_HEADER_PRIME = ",".join(DATA_NAMES_PRIME)
 
 # For the n-back task. Both in seconds
-N_BACK_IMAGE_DISPLAY_TIME = 0  # 1
-N_BACK_INTERSTIMULUS_INTERVAL = 0  # 0.5
+N_BACK_IMAGE_DISPLAY_TIME = 1
+N_BACK_INTERSTIMULUS_INTERVAL = 0.5
 
 # For the post-task. In seconds
-PRIME_IMAGE_DISPLAY_TIME = 0  # 1.5
+PRIME_IMAGE_DISPLAY_TIME = 1.5
 
 # Name will be shown on the pop-up before the experiment
 EXPERIMENT_NAME = "Lantern"
@@ -56,7 +56,7 @@ EXPERIMENT_NAME = "Lantern"
 PRACTICE_RUN = True
 
 # Go through the n-back task?
-N_BACK_TASK = True
+N_BACK_TASK = False
 
 # Go through the prime task? (Prime images will still appear in the n-back task)
 PRIME_TASK = True
@@ -385,6 +385,9 @@ def n_back_task():
     # Set the experiment name
     experiment_info['Section'] = 'n-back'
 
+    # Create a place to store the data
+    experiment_info['data'] = []
+
     # Show the user some instructions
     show_images('instructions', 'start')
 
@@ -424,9 +427,6 @@ def n_back_task():
 
     # Se the starting n_back difficulty
     num_back = START_N_BACK_DIFFICULTY
-
-    # Create a data
-    experiment_info['data'] = []
 
     # START TESTS
     for test_number in range(NUMBER_OF_BLOCKS):
