@@ -54,3 +54,6 @@ images/prime/task
 *.csv
 data/*
 
+# Pycharm related files
+.idea/*
+
