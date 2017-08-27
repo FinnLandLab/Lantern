@@ -120,8 +120,10 @@ for i in range(8):
     n_back_images += [image]
 
 
-# Make a prime image template to use later
-image_file = "images/prime/task/A/accordion/accordion_8.png"
+# Make a prime image template to use later.
+# Make sure it exists, and has the same ratio as the prime images
+
+image_file = "images/prime/practice/airplane/airplane_8.png"
 prime_image = visual.ImageStim(win=window, image=image_file)
 prime_image.size *= PRIME_TASK_IMG_HEIGHT / prime_image.size[1]
 prime_image.pos = (0, -PRIME_TASK_IMG_HEIGHT / 2)
@@ -221,7 +223,7 @@ def show_images(genre, subgenre, task=None, extension='.png'):
     """
     if task is None:
         task = experiment_info['Section']
-    image_paths = glob.glob("images\\{0}\\{1}\\{2}\\*{3}".format(task, genre, subgenre, extension))
+    image_paths = glob.glob("images/{0}/{1}/{2}/*{3}".format(task, genre, subgenre, extension))
     image_paths.sort()
 
     for image_path in image_paths:
@@ -323,7 +325,7 @@ def show_n_back_block(block, num_back, test_number, image_id_column=2, save=True
     timer = core.CountdownTimer(N_BACK_IMAGE_DISPLAY_TIME)
 
     # Get the prime images we'll use
-    prime_images = glob.glob('images\\prime\\task\\{}\\*\\*_8.png'.format(experiment_info['prime list name']))
+    prime_images = glob.glob('images/prime/task/{}/*/*_8.png'.format(experiment_info['prime list name']))
 
     # Randomize the order in which the the prime images will be displayed
     random.shuffle(prime_images)
@@ -337,7 +339,7 @@ def show_n_back_block(block, num_back, test_number, image_id_column=2, save=True
     for position_in_block in range(len(block)):
         # Get the prime
         prime_path = prime_images[position_in_block]
-        prime_name = prime_path.split('\\')[-1][:-6]
+        prime_name = prime_path.split('/')[-1][:-6]
 
         # Rename some data for easier usage
         order_set = (NUMBER_OF_BLOCKS - test_number) if experiment_info['blocks_reversed'] else (test_number + 1)
@@ -504,7 +506,7 @@ def identify_prime_image(folder_path):
     @return:
     @rtype:
     """
-    folder_name = folder_path.split('\\')[-1]
+    folder_name = folder_path.split('/')[-1]
 
     timer = core.CountdownTimer(PRIME_IMAGE_DISPLAY_TIME)
 
@@ -545,7 +547,7 @@ def prime_task():
     prime_image.pos = (0, 0)
 
     # Randomize how the prime image will be shown
-    prime_list = glob.glob('images\\prime\\task\*\\*')
+    prime_list = glob.glob('images/prime/task/*/*')
     random.shuffle(prime_list)
 
     # Show the instructions for this task:
@@ -554,7 +556,7 @@ def prime_task():
     # Go through the practice task
     if PRACTICE_RUN:
         show_images('instructions', 'practice')
-        practice_paths = glob.glob('images\\prime\\practice\\*')
+        practice_paths = glob.glob('images/prime/practice/*')
         for practice_path in practice_paths:
             identify_prime_image(practice_path)
 
@@ -565,7 +567,7 @@ def prime_task():
     for position in range(len(prime_list) // 2):
         # Get the prime image we will show
         prime_image_path = prime_list[position]
-        prime_image_name = prime_image_path.split('\\')[-1]
+        prime_image_name = prime_image_path.split('/')[-1]
 
         # Get the user to do the task, and save the experiment_info['data']
         data_point = [experiment_info['Section'],
@@ -582,7 +584,7 @@ def prime_task():
     for position in range(len(prime_list) // 2, len(prime_list)):
         # Get the prime image we will show
         prime_image_path = prime_list[position]
-        prime_image_name = prime_image_path.split('\\')[-1]
+        prime_image_name = prime_image_path.split('/')[-1]
 
         # Get the user to do the task, and save the experiment_info['data']
         data_point = [experiment_info['Section'],
@@ -598,12 +600,12 @@ def prime_task():
 
 
 # ---------------- MAIN PROGRAM --------------------
+
 if N_BACK_TASK:
     n_back_task()
 
 if PRIME_TASK:
     prime_task()
-
 # cleanup
 window.close()
 core.quit()
