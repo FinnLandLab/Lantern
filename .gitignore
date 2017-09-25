@@ -54,3 +54,9 @@ images/prime/task
 *.csv
 data/*
 
+*.xml
+*.xml
+*.png
+*.pyc
+*.xml
+.idea/workspace.xml
