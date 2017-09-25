@@ -54,9 +54,18 @@ images/prime/task
 *.csv
 data/*
 
+<<<<<<< HEAD
 *.xml
 *.xml
 *.png
 *.pyc
 *.xml
 .idea/workspace.xml
+=======
+# Pycharm related files
+.idea/
+
+# Psychopy related files (python compiled files)
+*.pyc
+
+>>>>>>> 3f8f38a02f57de10ab9873b9045baaac77bc3b92

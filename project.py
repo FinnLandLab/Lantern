@@ -120,8 +120,15 @@ for i in range(8):
     n_back_images += [image]
 
 
+<<<<<<< HEAD
 # Make a prime image template to use later. Changed from accordion to ball since accordion is no longer image in set A
 image_file = "images/prime/task/A/ball/ball_8.png"
+=======
+# Make a prime image template to use later.
+# Make sure it exists, and has the same ratio as the prime images
+
+image_file = "images/prime/practice/airplane/airplane_8.png"
+>>>>>>> 3f8f38a02f57de10ab9873b9045baaac77bc3b92
 prime_image = visual.ImageStim(win=window, image=image_file)
 prime_image.size *= PRIME_TASK_IMG_HEIGHT / prime_image.size[1]
 prime_image.pos = (0, -PRIME_TASK_IMG_HEIGHT / 2)
