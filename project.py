@@ -84,6 +84,9 @@ N_BACK_TASK_IMG_HEIGHT = 10
 # The height of the prime images in centimeters
 PRIME_TASK_IMG_HEIGHT = 10
 
+# Will the prime and n-back images overlap during the n-back experiment?
+N_BACK_OVERLAP = False
+
 
 # ---------------- VERIFICATION --------------------
 # Ensure that relative paths start from the same directory as this script
@@ -116,7 +119,8 @@ n_back_images = []
 for i in range(8):
     image = visual.ImageStim(win=window, image="images/n-back/task/{}.gif".format(i + 1))
     image.size *= N_BACK_TASK_IMG_HEIGHT / image.size[1]
-    image.pos = (0, N_BACK_TASK_IMG_HEIGHT / 2)
+    if not N_BACK_OVERLAP:
+        image.pos = (0, N_BACK_TASK_IMG_HEIGHT / 2)
     n_back_images += [image]
 
 
@@ -126,7 +130,8 @@ for i in range(8):
 image_file = "images/prime/practice/airplane/airplane_8.png"
 prime_image = visual.ImageStim(win=window, image=image_file)
 prime_image.size *= PRIME_TASK_IMG_HEIGHT / prime_image.size[1]
-prime_image.pos = (0, -PRIME_TASK_IMG_HEIGHT / 2)
+if not N_BACK_OVERLAP:
+    prime_image.pos = (0, -PRIME_TASK_IMG_HEIGHT / 2)
 
 # Make a template image to show announcements to the user
 instruction_image = visual.ImageStim(win=window, units='norm', size=(2, 2))
