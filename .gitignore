@@ -69,3 +69,6 @@ data/*
 *.pyc
 
 >>>>>>> 3f8f38a02f57de10ab9873b9045baaac77bc3b92
+.idea/workspace.xml
+.idea/workspace.xml
+*.xml
