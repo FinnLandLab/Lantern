@@ -1,3 +1,18 @@
+# Images (Too many images in the prime task to sync)
+images/prime/task
+*.png
+
+# Data
+*.csv
+data/*
+
+# Compiled files
+*.pyc
+
+# Config files
+.idea/
+
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
@@ -45,30 +60,3 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
-
-
-# Images (Too many images in the prime task to sync)
-images/prime/task
-
-# Data
-*.csv
-data/*
-
-<<<<<<< HEAD
-*.xml
-*.xml
-*.png
-*.pyc
-*.xml
-.idea/workspace.xml
-=======
-# Pycharm related files
-.idea/
-
-# Psychopy related files (python compiled files)
-*.pyc
-
->>>>>>> 3f8f38a02f57de10ab9873b9045baaac77bc3b92
-.idea/workspace.xml
-.idea/workspace.xml
-*.xml
