@@ -1,6 +1,6 @@
 class Configuration:
     """ The configuration for an experiment """
-    def __init__(self):
+    def __init__(self, participant_num):
         """ Creates a configuration with the following values"""
         self.output_location = "data"
 
@@ -19,3 +19,8 @@ class Configuration:
 
         self.prime_task = True
         self.prime_image_display_time = 1.5
+
+        # The following are counter-balanced for the participant
+        self.condition = participant_num % 4
+        self.n_back_blocks_reversed = self.condition % 2 == 0
+        self.n_back_prime_list_name = 'A' if ((self.condition // 2) % 2 == 0) else 'B'

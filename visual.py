@@ -1,14 +1,8 @@
 """ A package that focuses on the user interaction"""
 
 from psychopy import visual, event, gui, core
-import sys, os
+import sys
 from glob import glob
-
-# ---------------- VERIFICATION --------------------
-# Ensure that relative paths start from the same directory as this script
-_thisDir = os.path.dirname(
-    os.path.abspath(__file__)).decode(sys.getfilesystemencoding())
-os.chdir(_thisDir)
 
 
 def ask_user_info(title):
@@ -37,14 +31,29 @@ class Window:
     def __init__(self, experiment):
         """ Initializes the window class"""
         self.experiment = experiment
-        # Create the window object we'll use
-        self._window = visual.Window(fullscr=True, monitor="testMonitor", units="norm", color=1)
+        self.config = experiment.config
 
+        # Create the window
+        self._window = visual.Window(fullscr=True, monitor="testMonitor", units='norm', color=1)
+
+        # Create an image to show full-screen images
         self._instruction_image = visual.ImageStim(win=self._window, units='norm', size=(2, 2))
+
+        # The prime images have the same dimensions, so we can use one object for all of them
+        self._prime_image = visual.ImageStim(win=self._window, units='cm')
+        self._prime_image.size *= self.config.n_back_focal_image_height / self._prime_image.size[1]
+
+        # Create an image to show the n-back focal image, important as they do not have the same dimensions
+        self._n_back_images = []
+        for i in range(8):
+            image = visual.ImageStim(win=self._window, units='cm', image="images/n-back/task/{}.gif".format(i + 1))
+            image.size *= self.config.n_back_focal_image_height / image.size[1]
+            self._n_back_images += [image]
 
     def show_images(self, genre, subgenre='', task=None, extension='.png'):
         """ Shows all the images which follow the pattern
         'image/{task}/{genre}/{subgenre}/*{extension}', in ascending order.
+        The images will be shown one after another.
 
         @param genre:
         @param subgenre:
@@ -63,6 +72,22 @@ class Window:
             self._window.flip()
             self.wait_for_prompt()
 
+    def n_back_show(self, n_back_image_id, prime_image_path):
+        """ Draws the given n-back image and prime image """
+        n_back_image = self._n_back_images[n_back_image_id - 1]
+        self._prime_image.image = prime_image_path
+
+        if self.config.n_back_image_overlap:
+            n_back_image.pos = (0, self.config.n_back_focal_image_height / 2)
+            self._prime_image.pos = (0, -self.config.n_back_focal_image_height / 2)
+        else:
+            n_back_image.pos = (0, self.config.n_back_focal_image_height / 2)
+            self._prime_image.pos = (0, -self.config.n_back_focal_image_height / 2)
+
+        n_back_image.draw()
+        self._prime_image.draw()
+        self._window.flip()
+
     def show_text(self, text, size=None):
         """ Shows the text text on the main screen"""
         text_element = visual.TextStim(self._window, text=text, wrapWidth=None, color=-1, font='Times New Roman', height=size)
@@ -78,7 +103,8 @@ class Window:
         for i in range(len(choices)):
             x_loc = 2 * ((i + 1.0) / (len(choices) + 1)) - 1
 
-            text = visual.TextStim(self._window, text=choices[i], wrapWidth=button_width/1.1, color=-1, font='Times New Roman', pos=(x_loc, -0.5), height=size)
+            text = visual.TextStim(self._window, text=choices[i], wrapWidth=button_width/1.1, color=-1,
+                                   font='Times New Roman', pos=(x_loc, -0.5), height=size)
             textWidth, textHeight = text.boundingBox
             textWidth = 2.0 * textWidth / self._window.size[0]
             textHeight = 2.0 * textHeight / self._window.size[1]
@@ -92,7 +118,8 @@ class Window:
         text.draw()
 
         # Tell the user to use their mouse
-        text = visual.TextStim(self._window, text="Use your mouse to click:", wrapWidth=2, color=-1, font='Times New Roman', alignHoriz='left', pos=(-0.9, -textHeight), height=size)
+        text = visual.TextStim(self._window, text="Use your mouse to click:", wrapWidth=2, color=-1,
+                               font='Times New Roman', alignHoriz='left', pos=(-0.9, -textHeight), height=size)
         text.draw()
 
         self._window.flip()
@@ -109,8 +136,6 @@ class Window:
                 sys.exit()
 
             core.wait(0.01, hogCPUperiod=0)
-
-
 
     def wait_for_prompt(self, timer=None, keys='space'):
         """ Waits indefinitely until a key in keys is pressed. Return the key that was pressed.
@@ -156,12 +181,12 @@ class Window:
 
         # Set up a text box for instructions
         text = "Please type in your answer, press the key '0' to submit it:"
-        text_instr = visual.TextStim(win=window, text=text, color=-1, alignHoriz='left', alignVert='top', units='norm',
-                                     pos=(-1, 1))
+        text_instr = visual.TextStim(win=self._window, text=text, color=-1, alignHoriz='left', alignVert='top',
+                                     units='norm', pos=(-1, 1))
 
         # Set up a textbox for user input
         input_text = ""
-        input_box = visual.TextStim(win=window, text=input_text, color=-1)
+        input_box = visual.TextStim(win=self._window, text=input_text, color=-1)
 
         # Get user input
         inputting = True
@@ -173,7 +198,7 @@ class Window:
                     inputting = False
                     break
                 elif key == 'escape':
-                    save_data()
+                    self.experiment.save_data()
                     core.quit()
 
                 elif key == 'space':
@@ -187,6 +212,11 @@ class Window:
             input_box.text = input_text
             input_box.draw()
             text_instr.draw()
-            window.flip()
+            self._window.flip()
 
         return input_text
+
+    def clear(self, time):
+        """ Clears the screen and pauses execution for the given amount of time"""
+        self._window.flip()
+        core.wait(time)

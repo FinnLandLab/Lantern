@@ -1,12 +1,12 @@
 
 class PrimeTask:
-    def __init__(self):
-        """
+    def __init__(self, experiment):
+        """ Create a prime task for the given experiment """
+        self.experiment = experiment
+        self.window = experiment.window
+        self.config = experiment.config
 
-        """
-        pass
-
-    def identify_prime_image(folder_path):
+    def identify_prime_image(self, folder_path):
         """ Run the prime image identification task for the images in the folder folder_path
 
         @param folder_path:
@@ -42,7 +42,7 @@ class PrimeTask:
         return [8, user_responce, 'N/A']
 
 
-    def prime_task():
+    def run(self):
         """ Run the prime task"""
         # Change the section info
         experiment_info['Section'] = 'prime'

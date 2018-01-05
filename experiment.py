@@ -1,4 +1,6 @@
-import time, os, sys
+import time
+import os
+import sys
 import visual
 from config import Configuration
 
@@ -17,21 +19,17 @@ class Experiment:
     """ A general experiment class containing all the information for the experiment.
     """
 
-    def __init__(self, participant, age_group):
-        """ Initializes a experiment class.
-
-            @param str participant: The id of the participant
-            @param str age_group: The age group the participant is a part of
-        """
-        self.participant = participant
-        # Get the numbers from the participant_id string
-        self.participant_num = int("".join([c for c in participant if c.isdigit()]))
-        self.condition = self.participant_num % 4  # can be 0, 1, 2, or 3
-
+    def __init__(self):
+        """ Initializes a experiment class. """
         self.name = "Lantern"
-        self.config = Configuration()
 
-        self.age_group = age_group
+        self.participant, self.age_group = visual.ask_user_info(self.name)
+
+        # Get the numbers from the participant_id string
+        self.participant_num = int("".join([c for c in self.participant if c.isdigit()]))
+
+        self.config = Configuration(self.participant_num)
+
         self.date = time.strftime('%c')
         self._data = []
         self.section = 'setup'
@@ -56,8 +54,8 @@ class Experiment:
 
         """
 
-        location = "{0}/{1}/{2}/{3}/".format(OUTPUT_LOCATION, self.section, self.age_group, self.participant)
-
+        location = "{0}/{1}/{2}/{3}/".format(self.config.output_location,
+                                             self.section, self.age_group, self.participant)
         # Make sure the file directory exists
         if not os.path.exists(location):
             os.makedirs(location)
