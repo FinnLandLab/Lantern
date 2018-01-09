@@ -3,6 +3,7 @@ import os
 import sys
 import visual
 from config import Configuration
+from pandas import DataFrame
 
 # ---------------- VERIFICATION --------------------
 # Ensure that relative paths start from the same directory as this script
@@ -31,7 +32,7 @@ class Experiment:
         self.config = Configuration(self.participant_num)
 
         self.date = time.strftime('%c')
-        self._data = []
+        self._data = {}
         self._data_type = None
         self.section = 'setup'
         self.window = visual.Window(self)
@@ -44,14 +45,23 @@ class Experiment:
         """
         if self._data_type is None:
             self._data_type = type(data_point)
-        elif type(data_point):
+        elif type(data_point) != self._data_type or data_point is None:
             raise ValueError("data_point ", data_point, "has the wrong type")
-        self._data.append(data_point)
+
+        to_save = vars(data_point)
+        while '__parent' in to_save:
+            parent = to_save.pop('__parent')
+            to_save.update(vars(parent))
+
+        for key in to_save:
+            if key not in self._data:
+                self._data[key] = []
+            self._data[key].append(to_save[key])
 
     def new_section(self, section_name):
         """ Start a new section of the experiment"""
         self.section = section_name
-        self._data = []
+        self._data = {}
         self._data_type = None
 
     def save_data(self):
@@ -60,34 +70,16 @@ class Experiment:
 
         """
 
-        location = "{0}/{1}/{2}/{3}/".format(self.config.output_location,
-                                             self.section, self.age_group, self.participant)
+        dir_loc = "{0}/{1}/{2}/{3}/".format(self.config.output_location,
+                                            self.section, self.age_group, self.participant)
         # Make sure the file directory exists
-        if not os.path.exists(location):
-            os.makedirs(location)
+        if not os.path.exists(dir_loc):
+            os.makedirs(dir_loc)
 
         # Get the output file
-        output_file = open(location + self.section + ".csv", 'w')
-
-        # Write the header for the csv file
-        if self.section == 'task':
-            output_file.write(DATA_HEADER_TASK)
-        elif self.section == 'post-task':
-            output_file.write(DATA_HEADER_POST)
-        else:
-            raise Exception("Section name is '{}'".format(self.section))
-
-        # End the line
-        output_file.write("\n")
-
-        # Output the answers, and close the file
-        for row in self._data:
-            row = ",".join(str(entry) for entry in row)
-            output_file.write(row)
-            output_file.write("\n")
-        output_file.close()
-
-        self._data = []
+        file_loc = dir_loc + self.section + ".csv"
+        df = DataFrame.from_dict(self._data)
+        df.to_csv(file_loc)
 
     def close(self):
         """ Ends the experiment. Does not save any data"""

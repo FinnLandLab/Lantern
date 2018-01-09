@@ -1,167 +1,190 @@
-import csv
 from random import shuffle
 from psychopy import core
 from glob import glob
+import re
+import pandas
 
 
+class Trial:
+    """ Used to run and save the results of a single n-back trial"""
+    class DataPoint:
+        """ A class used to store data about a trial. Passed in to the experiment class to be saved."""
 
-class NBackDataPointBuilder:
-    """ A class used to build up a data point, one piece at a time """
-    def __init__(self):
-        """ Create a data point builder"""
-        self._data = {}
+        def __init__(self, block):
+            """ Create a data point builder
+            @param Block block: The block this DataPoint's trial is in
+            """
+            self.position_in_block = block.get_current_position()
+            self.focal_image_id = block.get_current_focal_image_id()
+            self.prime_image_path = block.get_current_prime_image_path()
+            self.prime_image_id = re.split('[/\\\\]', self.prime_image_path.split('/'))
+            self.n_back_image_id = block.get_n_back_image_id()
+            self.lure, self.lure_kind = self.get_lure_info(block)
+            self.expected_response = (self.focal_image_id == self.n_back_image_id)
 
-    def set_prime_name(self, prime_name):
-        self._data['prime image id'] = prime_name
+            # The user has to fill these in
+            self.user_response = False
+            self.user_correct = None
+            self.reaction_time = None
 
-    def set_num_back(self, num_back):
-        self._data['n-back type'] = num_back
+            self.__parent = block.to_save
 
-    def set_order_set(self, order_set):
-        self._data['order set'] = order_set
+        def get_lure_info(self, block):
+            """ Return if there is a lure, and information about the lure if it exists. A lure happens when an i-back
+            focal image is the same as the current focal image, and i is not the n-back difficulty for the block
 
-    def set_position_in_block(self, position):
-        self._data['position in block'] = position
+            @param Block block: the block that this DataPoint's trial belongs to
+            @return: (bool, str | None)
+            """
+            lure = False
+            lure_kind = None
+            for i in range(1, 4):
+                if i == block.to_save.n_back_type:
+                    continue
+                i_back = block.get_i_back_image_id(i)
+                if i_back is not None and i_back == self.focal_image_id:
+                    lure = True
+                    lure_kind = "{}-back".format(i + 1)
+                    return lure, lure_kind
+            return lure, lure_kind
 
-    def set_image_id(self, focal_image_id):
-        self._data['image id'] = focal_image_id
+    def __init__(self, block):
+        """ Creates an n-back trial for the given NBackBlock
+        @param Block block: the block this trial is for
+        """
+        self.block = block
+        self.experiment = block.experiment
+        self.window = block.window
+        self.config = block.config
+        self.to_save = self.DataPoint(block)
 
-    def set_n_back_image_id(self, n_back_image_id):
-        self._data['n-back image'] = n_back_image_id
+    def show_n_back(self):
+        """ Show one screen of the n-back task for a certain amount of time and record the results"""
+        self.window.n_back_show(self.to_save.focal_image_id, self.to_save.prime_image_path)
+        timer = core.CountdownTimer(self.config.n_back_display_time)
+        # Catch user input
+        if self.window.wait_for_prompt(timer, 'a'):
+            # User pressed the key 'a'
+            self.to_save.reaction_time = self.config.n_back_display_time - timer.getTime()
+            self.to_save.user_response = True
+            core.wait(timer.getTime())
 
-    def set_lure(self, lure):
-        self._data['lure'] = lure
+        self.to_save.user_correct = (self.to_save.user_response == self.to_save.expected_response)
 
-    def set_lure_kind(self, lure_kind):
-        self._data['lure kind'] = lure_kind
-
-    def set_expected_response(self, expected_response):
-        self._data['expected response'] = expected_response
-
-    def set_user_response(self, user_response):
-        self._data['user response'] = user_response
-
-    def set_reaction_time(self, reaction_time):
-        self._data['reaction time'] = reaction_time
+    def run(self):
+        """ Run this n-back trial, along with pre and post trial tasks."""
+        self.show_n_back()
+        self.window.clear(self.config.n_back_interstimulus_interval)   # Wait for the ISI
 
 
-class NBackTask:
+class Block:
+    """ Used to run and save the results of a block of n-back trials"""
+    class Configuration:
+        """ A class used to store the configuration info of a NBackBlock"""
+        def __init__(self, n_back_type, order_set, save, prime_folder):
+            """ Creates a configuration for a Block
+
+            @param int n_back_type: The type of n-back in this block
+            @param order_set: what order set to pull the ordering info from
+            @param bool save: whether we should save data collected in this block or not
+            """
+            self.n_back_type = n_back_type
+            self.order_set = order_set
+            self.prime_folder = prime_folder
+            self.save = save
+            self.size = 23
+
+        def get_focal_image_id_order(self):
+            df = pandas.read_csv("ordering/" + self.order_set)
+            return df['img_numb']
+
+        def get_prime_image_path_order(self):
+            paths = glob(self.prime_folder + '/*/*_8.png')
+            shuffle(paths)
+            return paths
+
+    class DataPoint:
+        """ A class used to store data about a n-back block. Passed in to the experiment class to be saved"""
+        def __init__(self, task, block_number, block_config):
+            """ Create a data point object
+
+            @param: Task task: the task this DataPoint's Block belongs to
+            @param int block_number: how many blocks came before this one
+            @param Block.Configuration block_config: the config that this DataPoint's Block is built from
+            """
+            self.n_back_type = block_config.n_back_type
+            self.block_number = block_number
+            self.order_set = block_config.order_set
+            self.prime_folder = block_config.prime_folder
+            self.__parent = task.config
+
+    def __init__(self, task, block_number, block_config):
+        """ Creates an n-back block for the given NBackTask
+
+        @param Task task: the task this block belongs to
+        @param int block_number: The number of the current block
+        @param Block.Configuration block_config: The way this block should be configured """
+        self.task = task
+        self.experiment = task.experiment
+        self.window = task.window
+        self.config = task.config
+        self.block_config = block_config
+
+        # Internal variables, not to be saved
+        self.focal_image_order = block_config.get_focal_image_id_order()
+        self.prime_image_order = block_config.get_prime_image_path_order()
+
+        self.trial_number = None
+        self.error_tally = None
+
+        # Variables to be saved, along with self.config
+        self.to_save = self.DataPoint(task, block_number, block_config)
+
+    def get_i_back_image_id(self, i):
+        """ Finds the id of the focal image that was displayed i trials ago,
+        where 1 <= i <= the current trial number.
+
+        @param int i:
+        @return: None|int"""
+        if 1 <= i <= self.trial_number:
+            return self.focal_image_order[self.trial_number - i]
+        return None
+
+    def get_n_back_image_id(self):
+        """ Finds the id of the focal image that was displayed n (or n_back_type) trials ago,
+        where n is the n-back difficulty.
+
+        @return: None|int"""
+        return self.get_i_back_image_id(self.to_save.n_back_type)
+
+    def run(self):
+        """ Runs before a single task in a block"""
+        # Counter for wrong answers
+        self.error_tally = 0
+        for self.trial_number in range(self.block_config.size):
+            trial = Trial(self)
+            trial.run()
+            if not trial.to_save.user_correct:
+                self.error_tally += 1
+            if self.block_config.save:
+                self.experiment.push_data(trial.to_save)
+
+    def get_current_position(self):
+        return self.trial_number
+
+    def get_current_focal_image_id(self):
+        return self.focal_image_order[self.trial_number]
+
+    def get_current_prime_image_path(self):
+        return self.prime_image_order[self.trial_number]
+
+
+class Task:
     def __init__(self, experiment):
         """ Create a n-back task for the given experiment """
         self.experiment = experiment
         self.window = experiment.window
         self.config = experiment.config
-
-    def show_n_back(self, image_id, prime_path):
-        """
-
-        @param image_id:
-        @param prime_path:
-        @param timer:
-        @return:
-        @rtype:
-        """
-        self.window.n_back_show(image_id, prime_path)
-        timer = core.CountdownTimer(self.config.n_back_display_time)
-
-        # Catch user input
-        if self.window.wait_for_prompt(timer, 'a'):
-            # User pressed the key 'a'
-            reaction_time = self.config.n_back_display_time - timer.getTime()
-            core.wait(timer.getTime())
-            return 1, reaction_time
-
-        return 0, ''
-
-    def get_n_back_image_id(self, num_back, last_image_ids):
-        """
-
-        @param num_back:
-        @param last_image_ids:
-        @return:
-        """
-        if len(last_image_ids) < num_back:
-            return ''
-
-        return last_image_ids[num_back - 1]
-
-    def get_lure_info(self, num_back, image_id, last_image_ids):
-        """ Return
-
-        @param num_back:
-        @param image_id:
-        @param last_image_ids:
-        @return:
-        @rtype: (int, str)
-        """
-        for i in range(len(last_image_ids)):
-            if i != num_back - 1 and last_image_ids[i] == image_id:
-                return 1, "{}-back".format(i + 1)
-
-        return 0, ''
-
-    def show_n_back_block(self, block, num_back, test_number, image_id_column=2, save=True):
-        """ Shows a block of images in the n-back tasks
-
-        @param lst block: A matrix containing the ordering info for this block
-        @param int num_back: The type of n-back task
-        @param int test_number: What test number this is, used only for output
-        @param int image_id_column: the column of the block matrix with the image_id information
-        @param bool save: Whether the data should be saved to experiment['data'] or not
-        @return: the number of wrong answers
-        @rtype: int
-        """
-        # Get the prime images we'll use
-        prime_images = glob('images/prime/task/{}/*/*_8.png'.format(self.config.n_back_prime_list_name))
-
-        # Randomize the order in which the the prime images will be displayed
-        shuffle(prime_images)
-
-        # Counter for wrong answers
-        wrong_answers = 0
-
-        # A list containing the most recently viewed images
-        last_image_ids = []
-
-        for position_in_block in range(len(block)):
-            # Get the prime
-            prime_path = prime_images[position_in_block]
-            prime_name = prime_path.split('/')[-1][:-6]
-
-            # Rename some data for easier usage
-            order_set = (self.config.n_back_block_total - test_number) if self.config.n_back_blocks_reversed else (test_number + 1)
-            image_id = int(block[position_in_block][image_id_column])
-
-            # Get what the user should answer
-            n_back_image_id = self.get_n_back_image_id(num_back, last_image_ids)
-            expected_response = int(image_id == n_back_image_id)
-
-            # Get the lure information
-            lure, lure_kind = self.get_lure_info(num_back, image_id, last_image_ids)
-
-            # Get the user response
-            user_response, reaction_time = self.show_n_back(image_id, prime_path)
-
-            if user_response != expected_response:
-                wrong_answers += 1
-
-            # Save some data
-            if save:
-                data_point = [prime_name,
-                              num_back, order_set, position_in_block + 1,
-                              image_id, n_back_image_id,
-                              lure, lure_kind,
-                              expected_response,
-                              user_response, reaction_time]
-                self.experiment.push_data(data_point)
-
-            # Add image_id to last_image_ids limiting it's size to 3
-            last_image_ids = [image_id] + last_image_ids[:2]
-
-            # Clear the window and wait for the ISI
-            self.window.clear(self.config.n_back_interstimulus_interval)
-
-        return wrong_answers
 
     def run(self):
         """ Run the n-back task"""
@@ -175,16 +198,17 @@ class NBackTask:
             # Show practice instructions
             self.window.show_images('instructions', 'practice')
 
-            # PRACTICE RUN
             for i in range(2):
+                prac_config = Block.Configuration(n_back_type=i + 1, order_set="{}_practice.csv".format(i + 1),
+                                                  prime_folder="images/prime/practice", save=False)
                 # Get the file with the data for the image ordering
-                block = get_csv_data("{}_practice.csv".format(i + 1))
+                block = Block(task=self, block_number=-1, block_config=prac_config)
 
                 # Draw the instruction screen for this type of block
                 self.window.show_images('prompts', '{}-back'.format(i + 1))
 
                 # Go through this block without saving the data
-                self.show_n_back_block(block, i + 1, i + 1, image_id_column=0, save=False)
+                block.run()
 
         # Show instructions before actual test
         self.window.show_images("instructions", "test")
@@ -193,7 +217,7 @@ class NBackTask:
         blocks = [[], [], []]
         for difficulty in range(3):
             for j in range(self.config.n_back_block_total):
-                blocks[difficulty].append(get_csv_data("{}_{}.csv".format(difficulty + 1, j + 1)))
+                blocks[difficulty].append("{}_{}.csv".format(difficulty + 1, j + 1))
 
             # Reverse the blocks half of the time
             if self.config.n_back_blocks_reversed:
@@ -204,13 +228,22 @@ class NBackTask:
 
         # Start tests
         for test_number in range(self.config.n_back_block_total):
-            # Get the block we will be using
-            block = blocks[num_back - 1][test_number]
 
-            # Show the instruction image
+            order_set = blocks[num_back - 1][test_number]
+
+            config = Block.Configuration(n_back_type=num_back, order_set=order_set,
+                                         prime_folder="images/prime/task/{}".format(self.config.n_back_prime_list_name),
+                                         save=False)
+
+            block = Block(task=self, block_number=test_number, block_config=config)
+
+            # Draw the instruction screen for this type of block
             self.window.show_images('prompts', '{}-back'.format(num_back))
 
-            errors = self.show_n_back_block(block, num_back, test_number)
+            # Go through this block without saving the data
+            block.run()
+
+            errors = block.error_tally
 
             if errors >= self.config.n_back_min_errors_to_lower_difficulty and num_back > 1:
                 num_back -= 1
@@ -224,17 +257,3 @@ class NBackTask:
         # Put up the end of experiment screen
         self.window.show_images('instructions', 'end')
 
-
-def get_csv_data(file_name, header=True):
-    """ Return the information in the file_name csv file. Organized like [row0, row1, row2,...],
-    where a row looks like [value1, value2,...]
-
-    @param file_name: The name of the csv file to be parsed
-    @param header: Is there a header in the csv file?
-    @return: A list of lists
-    """
-    block_file = open("ordering/{}".format(file_name), 'rU')
-    reader = csv.reader(block_file)
-    lines = [l for l in reader]
-    block_file.close()
-    return lines[1:] if header else lines

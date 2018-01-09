@@ -9,7 +9,7 @@ experiment = Experiment()
 
 # ---------------- MAIN PROGRAM --------------------
 if experiment.config.n_back_task:
-    n_back = task.NBackTask(experiment)
+    n_back = task.Task(experiment)
     n_back.run()
 
 if experiment.config.prime_task:
