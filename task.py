@@ -1,6 +1,6 @@
-from random import shuffle
+import random
 from psychopy import core
-from glob import glob
+import glob
 import re
 import pandas
 
@@ -100,9 +100,23 @@ class Block:
             df = pandas.read_csv("ordering/" + self.order_set)
             return df['img_numb']
 
-        def get_prime_image_path_order(self):
-            paths = glob(self.prime_folder + '/*/*_8.png')
-            shuffle(paths)
+        def get_prime_image_path_order(self, do_not_start_with=None):
+            """ Return a list of paths to prime images, from the folder self.prime_folder. Optional argument
+            do_not_start_with indicates a path in the directory that should not be the first one in the ordering
+
+            @param str|None do_not_start_with: don't start the prime image path order with the given path
+            @return: lst(str)
+            """
+            paths = glob.glob(self.prime_folder + '/*/*_8.png')
+            if do_not_start_with is not None:
+                paths.remove(do_not_start_with)
+                first = random.choice(paths)
+                paths.remove(first)
+                paths.append(do_not_start_with)
+                random.shuffle(paths)
+                return [first] + paths
+
+            random.shuffle(paths)
             return paths
 
     class DataPoint:
@@ -178,8 +192,9 @@ class Block:
         return self.focal_image_order[self.trial_number]
 
     def get_current_prime_image_path(self):
-        while self.block_config.loop_primes and self.trial_number >= len(self.prime_image_order):
-            self.prime_image_order.extend(self.block_config.get_prime_image_path_order())
+        if self.block_config.loop_primes and self.trial_number >= len(self.prime_image_order):
+            last_path = self.prime_image_order[len(self.prime_image_order) - 1]
+            self.prime_image_order.extend(self.block_config.get_prime_image_path_order(do_not_start_with=last_path))
         return self.prime_image_order[self.trial_number]
 
 
