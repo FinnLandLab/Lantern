@@ -49,7 +49,7 @@ class Experiment:
             raise ValueError("data_point ", data_point, "has the wrong type")
 
         to_save = vars(data_point)
-        while '__parent' in to_save:
+        while '_DataPoint__parent' in to_save:
             parent = to_save.pop('_DataPoint__parent')
             to_save.update(vars(parent))
 
