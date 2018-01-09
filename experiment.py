@@ -32,6 +32,7 @@ class Experiment:
 
         self.date = time.strftime('%c')
         self._data = []
+        self._data_type = None
         self.section = 'setup'
         self.window = visual.Window(self)
 
@@ -41,12 +42,17 @@ class Experiment:
             @param lst data_point: The data point to be saved
             @rtype None
         """
+        if self._data_type is None:
+            self._data_type = type(data_point)
+        elif type(data_point):
+            raise ValueError("data_point ", data_point, "has the wrong type")
         self._data.append(data_point)
 
     def new_section(self, section_name):
         """ Start a new section of the experiment"""
         self.section = section_name
         self._data = []
+        self._data_type = None
 
     def save_data(self):
         """ Saves the data data that was pushed since the last time new section was called to:

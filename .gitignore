@@ -3,7 +3,6 @@ images/prime/task
 *.png
 
 # Data
-*.csv
 data/*
 
 # Compiled files
