@@ -17,7 +17,7 @@ class Trial:
             self.position_in_block = block.get_current_position()
             self.focal_image_id = block.get_current_focal_image_id()
             self.prime_image_path = block.get_current_prime_image_path()
-            self.prime_image_id = re.split('[/\\\\]', self.prime_image_path.split('/'))
+            self.prime_image_id = re.split('[/\\\\]', self.prime_image_path)
             self.n_back_image_id = block.get_n_back_image_id()
             self.lure, self.lure_kind = self.get_lure_info(block)
             self.expected_response = (self.focal_image_id == self.n_back_image_id)
