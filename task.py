@@ -252,7 +252,7 @@ class Task:
 
             config = Block.Configuration(n_back_type=num_back, order_set=order_set,
                                          prime_folder="images/prime/task/{}".format(self.config.n_back_prime_list_name),
-                                         save=False, loop_prime=False)
+                                         save=True, loop_prime=False)
 
             block = Block(task=self, block_number=test_number, block_config=config)
 
