@@ -81,18 +81,20 @@ class Block:
     """ Used to run and save the results of a block of n-back trials"""
     class Configuration:
         """ A class used to store the configuration info of a NBackBlock"""
-        def __init__(self, n_back_type, order_set, save, prime_folder):
+        def __init__(self, n_back_type, order_set, save, prime_folder, loop_prime):
             """ Creates a configuration for a Block
 
             @param int n_back_type: The type of n-back in this block
             @param order_set: what order set to pull the ordering info from
             @param bool save: whether we should save data collected in this block or not
+            @param bool loop_prime: if there are less primes than the size of the block, should we
+            loop the images we do have or crash
             """
             self.n_back_type = n_back_type
             self.order_set = order_set
             self.prime_folder = prime_folder
+            self.loop_primes = loop_prime
             self.save = save
-            self.size = 23
 
         def get_focal_image_id_order(self):
             df = pandas.read_csv("ordering/" + self.order_set)
@@ -161,7 +163,7 @@ class Block:
         """ Runs before a single task in a block"""
         # Counter for wrong answers
         self.error_tally = 0
-        for self.trial_number in range(self.block_config.size):
+        for self.trial_number in range(len(self.focal_image_order)):
             trial = Trial(self)
             trial.run()
             if not trial.to_save.user_correct:
@@ -176,6 +178,8 @@ class Block:
         return self.focal_image_order[self.trial_number]
 
     def get_current_prime_image_path(self):
+        while self.block_config.loop_primes and self.trial_number >= len(self.prime_image_order):
+            self.prime_image_order.extend(self.block_config.get_prime_image_path_order())
         return self.prime_image_order[self.trial_number]
 
 
@@ -200,7 +204,7 @@ class Task:
 
             for i in range(2):
                 prac_config = Block.Configuration(n_back_type=i + 1, order_set="{}_practice.csv".format(i + 1),
-                                                  prime_folder="images/prime/practice", save=False)
+                                                  prime_folder="images/prime/practice", save=False, loop_prime=True)
                 # Get the file with the data for the image ordering
                 block = Block(task=self, block_number=-1, block_config=prac_config)
 
@@ -233,7 +237,7 @@ class Task:
 
             config = Block.Configuration(n_back_type=num_back, order_set=order_set,
                                          prime_folder="images/prime/task/{}".format(self.config.n_back_prime_list_name),
-                                         save=False)
+                                         save=False, loop_prime=False)
 
             block = Block(task=self, block_number=test_number, block_config=config)
 
@@ -256,4 +260,3 @@ class Task:
 
         # Put up the end of experiment screen
         self.window.show_images('instructions', 'end')
-
