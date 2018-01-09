@@ -50,7 +50,7 @@ class Experiment:
 
         to_save = vars(data_point)
         while '__parent' in to_save:
-            parent = to_save.pop('__parent')
+            parent = to_save.pop('_DataPoint__parent')
             to_save.update(vars(parent))
 
         for key in to_save:
