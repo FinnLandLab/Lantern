@@ -79,7 +79,7 @@ class Experiment:
         # Get the output file
         file_loc = dir_loc + self.section + ".csv"
         df = DataFrame.from_dict(self._data)
-        df.to_csv(file_loc)
+        df.to_csv(file_loc, index=False)
 
     def close(self):
         """ Ends the experiment. Does not save any data"""
