@@ -1,3 +1,6 @@
+import time
+
+
 class Configuration:
     """ The configuration for an experiment """
     def __init__(self, participant_num):
@@ -22,5 +25,11 @@ class Configuration:
 
         # The following are counter-balanced for the participant
         self.condition = participant_num % 4
-        self.n_back_blocks_reversed = self.condition % 2 == 0
-        self.n_back_prime_list_name = 'A' if ((self.condition // 2) % 2 == 0) else 'B'
+        if self.n_back_task:
+            self.n_back_blocks_reversed = self.condition % 2 == 0
+            self.n_back_prime_list_name = 'A' if ((self.condition // 2) % 2 == 0) else 'B'
+        else:
+            self.n_back_blocks_reversed = None
+            self.n_back_prime_list_name = None
+
+        self.date = time.strftime('%c')
