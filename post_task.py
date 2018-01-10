@@ -45,30 +45,24 @@ class PrimeTask:
     def run(self):
         """ Run the prime task"""
         # Change the section info
-        experiment_info['Section'] = 'prime'
-
-        # Reset/Initalize the data in experiment_info['data']
-        experiment_info['data'] = []
-
-        # Center the prime image we'll display
-        prime_image.pos = (0, 0)
+        self.experiment.new_section('prime')
 
         # Randomize how the prime image will be shown
         prime_list = glob.glob('images/prime/task/*/*')
         random.shuffle(prime_list)
 
         # Show the instructions for this task:
-        show_images('instructions', 'start')
+        self.window.show_images('instructions', 'start')
 
         # Go through the practice task
         if PRACTICE_RUN:
-            show_images('instructions', 'practice')
+            self.window.show_images('instructions', 'practice')
             practice_paths = glob.glob('images/prime/practice/*')
             for practice_path in practice_paths:
                 identify_prime_image(practice_path)
 
         # Tell the user we are gonna start the real deal
-        show_images('instructions', 'test')
+                self.window.show_images('instructions', 'test')
         print(prime_list)
         # Start the tests
         for position in range(len(prime_list) // 2):
@@ -85,7 +79,7 @@ class PrimeTask:
             experiment_info['data'].append(data_point)
 
         # Take a break
-        show_images('instructions', 'halfway')
+            self.window.show_images('instructions', 'halfway')
 
         # Continue the tests
         for position in range(len(prime_list) // 2, len(prime_list)):
@@ -102,5 +96,5 @@ class PrimeTask:
             experiment_info['data'].append(data_point)
 
         # Save the data we gathered
-        save_data()
-        show_images('instructions', 'end')
+        self.window.show_images('instructions', 'end')
+        self.window.save_data()
