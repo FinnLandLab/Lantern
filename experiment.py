@@ -32,7 +32,7 @@ class Experiment:
         self.config = Configuration(self.participant_num)
 
         self.date = time.strftime('%c')
-        self._data = {}
+        self._data = []
         self._data_type = None
         self.section = 'setup'
         self.window = visual.Window(self)
@@ -43,25 +43,22 @@ class Experiment:
             @param lst data_point: The data point to be saved
             @rtype None
         """
-        if self._data_type is None:
+        if self._data_type is None and data_point is not None:
             self._data_type = type(data_point)
         elif type(data_point) != self._data_type or data_point is None:
             raise ValueError("data_point ", data_point, "has the wrong type")
 
-        to_save = vars(data_point)
+        to_save = dict(vars(data_point))
         while '_DataPoint__parent' in to_save:
             parent = to_save.pop('_DataPoint__parent')
             to_save.update(vars(parent))
 
-        for key in to_save:
-            if key not in self._data:
-                self._data[key] = []
-            self._data[key].append(to_save[key])
+        self._data.append(to_save)
 
     def new_section(self, section_name):
         """ Start a new section of the experiment"""
         self.section = section_name
-        self._data = {}
+        self._data = []
         self._data_type = None
 
     def save_data(self):
@@ -78,8 +75,9 @@ class Experiment:
 
         # Get the output file
         file_loc = dir_loc + self.section + ".csv"
-        df = DataFrame.from_dict(self._data)
+        df = DataFrame(self._data)
         df.to_csv(file_loc, index=False)
+
 
     def close(self):
         """ Ends the experiment. Does not save any data"""
