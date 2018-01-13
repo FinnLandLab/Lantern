@@ -44,7 +44,7 @@ class Trial:
                 i_back = block.get_i_back_image_id(i)
                 if i_back is not None and i_back == self.focal_image_id:
                     lure = True
-                    lure_kind = "{}-back".format(i + 1)
+                    lure_kind = "{}-back".format(i)
                     return lure, lure_kind
             return lure, lure_kind
 
