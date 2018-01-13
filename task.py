@@ -211,11 +211,11 @@ class Task:
         self.experiment.new_section('n-back')
 
         # Show the user some instructions
-        self.window.show_images('instructions', 'start')
+        self.window.show_image_sequence('instructions', 'start')
 
         if self.config.practice_run:
             # Show practice instructions
-            self.window.show_images('instructions', 'practice')
+            self.window.show_image_sequence('instructions', 'practice')
 
             for i in range(2):
                 prac_config = Block.Configuration(n_back_type=i + 1, order_set="{}_practice.csv".format(i + 1),
@@ -224,13 +224,13 @@ class Task:
                 block = Block(task=self, block_number=-1, block_config=prac_config)
 
                 # Draw the instruction screen for this type of block
-                self.window.show_images('prompts', '{}-back'.format(i + 1))
+                self.window.show_image_sequence('prompts', '{}-back'.format(i + 1))
 
                 # Go through this block without saving the data
                 block.run()
 
         # Show instructions before actual test
-        self.window.show_images("instructions", "test")
+        self.window.show_image_sequence("instructions", "test")
 
         # Load the blocks, in the order we'll run them.
         blocks = [[], [], []]
@@ -257,7 +257,7 @@ class Task:
             block = Block(task=self, block_number=test_number, block_config=config)
 
             # Draw the instruction screen for this type of block
-            self.window.show_images('prompts', '{}-back'.format(num_back))
+            self.window.show_image_sequence('prompts', '{}-back'.format(num_back))
 
             # Go through this block without saving the data
             block.run()
@@ -274,4 +274,4 @@ class Task:
         self.experiment.save_data()
 
         # Put up the end of experiment screen
-        self.window.show_images('instructions', 'end')
+        self.window.show_image_sequence('instructions', 'end')

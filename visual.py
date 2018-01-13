@@ -50,7 +50,7 @@ class Window:
             image.size *= self.config.n_back_focal_image_height / image.size[1]
             self._n_back_images += [image]
 
-    def show_images(self, genre, subgenre='', task=None, extension='.png'):
+    def show_image_sequence(self, genre, subgenre='', task=None, extension='.png'):
         """ Shows all the images which follow the pattern
         'image/{task}/{genre}/{subgenre}/*{extension}', in ascending order.
         The images will be shown one after another.
@@ -105,10 +105,10 @@ class Window:
 
             text = visual.TextStim(self._window, text=choices[i], wrapWidth=button_width/1.1, color=-1,
                                    font='Times New Roman', pos=(x_loc, -0.5), height=size)
-            textWidth, textHeight = text.boundingBox
-            textWidth = 2.0 * textWidth / self._window.size[0]
-            textHeight = 2.0 * textHeight / self._window.size[1]
-            rect = visual.Rect(self._window, min(1.5 * textWidth, button_width), 1.5 * textHeight, lineColor=-1, pos=(x_loc, -0.5))
+            text_width, text_height = text.boundingBox
+            text_width = 2.0 * text_width / self._window.size[0]
+            text_height = 2.0 * text_height / self._window.size[1]
+            rect = visual.Rect(self._window, min(1.5 * text_width, button_width), 1.5 * text_height, lineColor=-1, pos=(x_loc, -0.5))
             buttons += [rect]
             rect.draw()
             text.draw()
@@ -119,7 +119,7 @@ class Window:
 
         # Tell the user to use their mouse
         text = visual.TextStim(self._window, text="Use your mouse to click:", wrapWidth=2, color=-1,
-                               font='Times New Roman', alignHoriz='left', pos=(-0.9, -textHeight), height=size)
+                               font='Times New Roman', alignHoriz='left', pos=(-0.9, -text_height), height=size)
         text.draw()
 
         self._window.flip()
