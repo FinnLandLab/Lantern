@@ -12,6 +12,8 @@ class Trial:
         def __init__(self, image_folder_path, position, config):
             self.image_folder_path = image_folder_path
             self.image_name = re.split('[/\\\\]', image_folder_path)[-1]
+            self.set = re.split('[/\\\\]', image_folder_path)[-2]
+            self.appeared_in_n_back_task = (self.set == config.n_back_prime_list_name)
             self.position = position
 
             self.difficulty = None
