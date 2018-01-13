@@ -13,7 +13,7 @@ if experiment.config.n_back_task:
     n_back.run()
 
 if experiment.config.prime_task:
-    prime = post_task.PrimeTask(experiment)
+    prime = post_task.Task(experiment)
     prime.run()
 
 experiment.close()
