@@ -78,13 +78,20 @@ class Window:
         self._prime_image.image = prime_image_path
 
         if self.config.n_back_image_overlap:
-            n_back_image.pos = (0, self.config.n_back_focal_image_height / 2)
-            self._prime_image.pos = (0, -self.config.n_back_focal_image_height / 2)
+            n_back_image.pos = (0, 0)
+            self._prime_image.pos = (0, 0)
         else:
             n_back_image.pos = (0, self.config.n_back_focal_image_height / 2)
             self._prime_image.pos = (0, -self.config.n_back_focal_image_height / 2)
 
         n_back_image.draw()
+        self._prime_image.draw()
+        self._window.flip()
+
+    def post_task_show(self, prime_image_path):
+        """ Draws the given prime image """
+        self._prime_image.image = prime_image_path
+        self._prime_image.pos = (0, 0)
         self._prime_image.draw()
         self._window.flip()
 
