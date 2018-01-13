@@ -1,6 +1,7 @@
 from psychopy import core
 import glob
 import random
+import re
 
 
 class Trial:
@@ -10,7 +11,7 @@ class Trial:
 
         def __init__(self, image_folder_path, position, config):
             self.image_folder_path = image_folder_path
-            self.image_name = image_folder_path.split('/')[-1]
+            self.image_name = re.split('[/\\\\]', image_folder_path)[-1]
             self.position = position
 
             self.difficulty = None
@@ -28,19 +29,18 @@ class Trial:
 
     def run(self):
         """ Run the prime image identification task for the images in the folder folder_path """
-        folder_path = self.to_save.image_folder_path
-        folder_name = folder_path.split('/')[-1]
-
         timer = core.CountdownTimer(self.config.prime_image_display_time)
 
         for self.to_save.difficulty in range(1, 9):
             # Show the prime image for this difficulty
-            prime_image_path = "{0}/{1}_{2}.png".format(folder_path, folder_name, self.to_save.difficulty)
+            folder_path = self.to_save.image_folder_path
+            image_name = self.to_save.image_name
+            prime_image_path = "{0}/{1}_{2}.png".format(folder_path, image_name, self.to_save.difficulty)
             self.window.post_task_show(prime_image_path)
 
             # Wait for an input by the user, or for a timeout
             timer.reset()
-            if self.window.wait_for_prompt(timer=timer, key='space'):
+            if self.window.wait_for_prompt(timer, 'space'):
                 # Get the response time
                 self.to_save.reaction_time = self.config.prime_image_display_time - timer.getTime()
 
