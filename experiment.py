@@ -56,7 +56,7 @@ class Experiment:
         for key in to_save:
             if type(to_save[key]) is bool:
                 to_save[key] = int(to_save[key])
-                
+
         self._data.append(to_save)
 
     def new_section(self, section_name):
