@@ -26,10 +26,7 @@ class Experiment:
 
         self.participant, self.age_group = visual.ask_user_info(self.name)
 
-        # Get the numbers from the participant_id string
-        self.participant_num = int("".join([c for c in self.participant if c.isdigit()]))
-
-        self.config = Configuration(self.participant_num)
+        self.config = Configuration(self.participant, self.age_group)
 
         self.date = time.strftime('%c')
         self._data = []

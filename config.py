@@ -3,9 +3,16 @@ import time
 
 class Configuration:
     """ The configuration for an experiment """
-    def __init__(self, participant_num):
+    def __init__(self, participant, age_group):
         """ Creates a configuration with the following values"""
         self.output_location = "data"
+
+        # Save the age group and participant
+        self.participant = participant
+        self.age_group = age_group
+
+        # Get the numbers from the participant_id string
+        self.participant_num = int("".join([c for c in self.participant if c.isdigit()]))
 
         self.practice_run = True
 
@@ -24,7 +31,7 @@ class Configuration:
         self.prime_image_display_time = 1.5
 
         # The following are counter-balanced for the participant
-        self.condition = participant_num % 4
+        self.condition = self.participant_num % 4
         if self.n_back_task:
             self.n_back_blocks_reversed = self.condition % 2 == 0
             self.n_back_prime_list_name = 'A' if ((self.condition // 2) % 2 == 0) else 'B'
