@@ -1,6 +1,5 @@
 # Images (Too many images in the prime task to sync)
 images/prime/task
-*.png
 
 # Data
 data/*
