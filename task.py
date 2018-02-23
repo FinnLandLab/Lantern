@@ -213,18 +213,20 @@ class Task:
         # Show the user some instructions
         self.window.show_image_sequence('instructions', 'start')
 
+        self.window.show_image_sequence('instructions', 'start_{}'.format(self.config.difficulty_category))
+
         if self.config.practice_run:
             # Show practice instructions
             self.window.show_image_sequence('instructions', 'practice')
 
-            for i in range(2):
-                prac_config = Block.Configuration(n_back_type=i + 1, order_set="{}_practice.csv".format(i + 1),
+            for diff in range(1, self.config.n_back_practice_max_difficulty + 1):
+                prac_config = Block.Configuration(n_back_type=diff, order_set="{}_practice.csv".format(diff),
                                                   prime_folder="images/prime/practice", save=False, loop_prime=True)
                 # Get the file with the data for the image ordering
                 block = Block(task=self, block_number=-1, block_config=prac_config)
 
                 # Draw the instruction screen for this type of block
-                self.window.show_image_sequence('prompts', '{}-back'.format(i + 1))
+                self.window.show_image_sequence('prompts', '{0}_{1}-back'.format(self.config.difficulty_category, diff))
 
                 # Go through this block without saving the data
                 block.run()
@@ -234,7 +236,7 @@ class Task:
 
         # Load the blocks, in the order we'll run them.
         blocks = [[], [], []]
-        for difficulty in range(3):
+        for difficulty in range(self.config.n_back_max_difficulty):
             for j in range(self.config.n_back_block_total):
                 blocks[difficulty].append("{}_{}.csv".format(difficulty + 1, j + 1))
 
@@ -257,7 +259,7 @@ class Task:
             block = Block(task=self, block_number=test_number, block_config=config)
 
             # Draw the instruction screen for this type of block
-            self.window.show_image_sequence('prompts', '{}-back'.format(num_back))
+            self.window.show_image_sequence('prompts', '{}_{}-back'.format(self.config.difficulty_category, num_back))
 
             # Go through this block without saving the data
             block.run()
@@ -267,7 +269,8 @@ class Task:
             if errors >= self.config.n_back_min_errors_to_lower_difficulty and num_back > 1:
                 num_back -= 1
 
-            elif errors <= self.config.n_back_max_errors_to_raise_difficulty and num_back < 3:
+            elif errors <= self.config.n_back_max_errors_to_raise_difficulty \
+                    and num_back < self.config.n_back_max_difficulty:
                 num_back += 1
 
         # Store the data we gathered in experiment_info['data']
