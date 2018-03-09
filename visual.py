@@ -5,8 +5,7 @@ import psychopy.tools.monitorunittools
 
 import sys
 from glob import glob
-import ntpath
-
+import os
 
 def ask_user_info(title):
     """ A method used to ask the user for their participant id and their age group.
@@ -74,7 +73,7 @@ class Window:
         @param str path: The path of the image being displayed
         @rtype None
         """
-        name = ntpath.basename(path)
+        name = os.path.basename(path)
         if 'animate' in name:
             core.wait(self.config.animation_time_between_frames, hogCPUperiod=0)
         else:
