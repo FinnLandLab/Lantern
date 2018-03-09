@@ -4,7 +4,7 @@ import sys
 import visual
 from config import Configuration
 from pandas import DataFrame
-
+import numpy
 # ---------------- VERIFICATION --------------------
 # Ensure that relative paths start from the same directory as this script
 _thisDir = os.path.dirname(
@@ -51,7 +51,7 @@ class Experiment:
             to_save.update(vars(parent))
 
         for key in to_save:
-            if type(to_save[key]) is bool:
+            if type(to_save[key]) is bool or type(to_save[key]) is numpy.bool_:
                 to_save[key] = int(to_save[key])
 
         self._data.append(to_save)
