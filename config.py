@@ -7,7 +7,7 @@ class Configuration:
         """ Creates a configuration with the following values"""
         self.output_location = "data"
 
-        self.animation_time_between_frames = 0.1
+        self.animation_time_between_frames = 1
 
         # Save the age group and participant
         self.participant = participant
