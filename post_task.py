@@ -105,4 +105,4 @@ class Task:
         self.window.show_image_sequence('instructions', 'end')
 
         # Save the data we gathered
-        self.window.save_data()
+        self.experiment.save_data()
