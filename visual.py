@@ -276,10 +276,11 @@ class Window:
         """ Closes this window"""
         self._window.close()
 
-    def get_input_text(self, prompt=None, prompt_font_size=24, input_font_size=20):
-        """ Gets user input as text. The prompt
+    def get_input_text(self, prompt=None, prompt_font_size=24, input_font_size=20, submit_key='0'):
+        """ Gets user input as text. The prompt, if provided, is shown to the user at the top of the screen. Will
+        show the user what they type until they press {submit_key} and the text is
+        submitted and returned by this function
 
-        @return: The text the user inputted until they pressed the key '0'
         @rtype: str
         """
         # Calculate font sizes in cm
@@ -291,7 +292,7 @@ class Window:
 
         # Set up the prompt's textbox's text
         prompt = "" if prompt is None or prompt == "" else prompt + ". "
-        text = prompt + "Please type in your answer, press the key '0' to submit it:"
+        text = prompt + "Please type in your answer, press the key '{}' to submit it:".format(submit_key)
 
         # Make the prompt textbox
         text_instr = visual.TextStim(win=self._window, text=text, color=-1, wrapWidth=self.scalar_norm_to_cm(1.8),
@@ -302,9 +303,7 @@ class Window:
         input_text = ""
 
         input_box = visual.TextStim(win=self._window, text=input_text, color=-1, units='cm', height=input_font_size,
-                                    wrapWidth=self.scalar_norm_to_cm(1.8), alignHoriz='left', alignVert='top',
-                                    pos=self.norm_to_cm((-.9, 0)))
-        input_box.draw()
+                                    wrapWidth=self.scalar_norm_to_cm(1.8))
 
         # Get user input
         inputting = True
@@ -315,8 +314,8 @@ class Window:
 
             # Handle each key. Some key presses have special meaning
             for key in keys:
-                if key == '0':
-                    # 0 means we submit the captured text
+                if key == submit_key:
+                    # submit_key means we submit the captured text
                     inputting = False
                     break
                 elif key == 'escape':
