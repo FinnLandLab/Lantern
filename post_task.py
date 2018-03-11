@@ -18,7 +18,7 @@ class Trial:
 
             self.difficulty = None
             self.user_response = None
-            self.response_time = None
+            self.reaction_time = None
 
             self.__parent = config
 
