@@ -8,37 +8,37 @@ Run the "project.py" file. You can open it with psychopy.
 
 This file has all the configurations for the project. Feel free to mess around with different configurations. These will all be saved along with the data output by the experiment. The variables that can be changed are the following, with a description of what they do:
 
-- self.output_location = "data"
+- output_location
 	- Output directory for data collected during experiment
-- self.animation_time_between_frames
+- animation_time_between_frames
 	- The number of seconds to wait after showing an image that is marked with "\_animation". 
-- self.practice_run = True
+- practice_run
 	- Complete a practice run before the main task and the post-task.
-- self.n_back_task
+- n_back_task
 	- Whether or not to run the main task (n-back task).
-- self.n_back_block_total = 4
+- n_back_block_total
 	- The number of blocks that the n-back task will run through. At most 4. 
-- self.n_back_start_difficulty = 1
+- n_back_start_difficulty 
 	- The difficulty of the first n-back block 
-- self.n_back_min_errors_to_lower_difficulty
+- n_back_min_errors_to_lower_difficulty
 	- The threshold of errors where if you hit it or go over it, the difficulty is lowered. 
-- self.n_back_max_errors_to_raise_difficulty = 3
+- n_back_max_errors_to_raise_difficulty
 	- The threshold of errors where if you hit it or go under it, the difficulty is raised. 
-- self.n_back_focal_image_height = 10
+- n_back_focal_image_height
 	- The height of the n-back image you need to focus on during the n-back.
-- self.n_back_prime_image_height = 10
+- n_back_prime_image_height
 	- The height of the prime image that is meant to distract you during the n-back
-- self.n_back_image_overlap = True
+- n_back_image_overlap 
 	- Whether the prime and focal image in the n-back task will overlap
-- self.n_back_display_time = 1
+- n_back_display_time 
 	- The amount of time that an n-back image is shown for during the n-back task
-- self.n_back_interstimulus_interval = 0.5
+- n_back_interstimulus_interval
 	- How long to hold for on a blank screen between n-back trials.
-- self.n_back_task_critical_age = 6
+- n_back_task_critical_age 
 	- The oldest you can be and still get the easier version of the n-back task where difficulty is capped.
-- self.prime_task = True
+- prime_task 
 	- Whether or not to run the post-task (recall task).
-- self.prime_image_display_time = 1.5
+- prime_image_display_time
 	- The amount of time to display the prime image at a specific difficulty at the recall task.
 
 
@@ -70,38 +70,38 @@ The order of the images in the n-back task is determined by ordering files saved
 Along with all the config variables, the following things are also saved for the main task:
 
 #### Trial data
-- self.position_in_block
+- position_in_block
 	- The position of the trials within it's block 
-- self.focal_image_id 
+- focal_image_id 
 	- The id of the n-back image being shown for this trial
-- self.prime_image_path
+- prime_image_path
 	- The path to the prime image being shown for this trial
-- self.prime_image_id
+- prime_image_id
 	- The id of the prime image being shown for this trial
-- self.n_back_image_id
+- n_back_image_id
 	- The id of the image that was n-back relative to this trial if there was one
-- self.lure
+- lure
 	- If there is a lure, a lure happens when an i-back focal image is the same as the current focal image, and i is not the n-back difficulty for the block
-- self.lure_kind
+- lure_kind
 	- The kind of lure if there is one. A lure happens when an i-back focal image is the same as the current focal image, and i is not the n-back difficulty for the block (kind would be i)
-- self.expected_response
+- expected_response
 	- The expected or correct response for this trial
-- self.user_response
+- user_response
 	- What the user responded for this trial
-- self.user_correct
+- user_correct
 	- If the user was correct for this trial
-- self.reaction_time = None
+- reaction_time 
 	- The reaction time for the user for this trial, if they reacted.
 
 #### Block data
 
-- self.n_back_type
+- n_back_type
 	- The type of n-back for this block (1,2, or 3 back)
-- self.block_number = block_number
+- block_number 
 	- The position of this block within the trial (ie ith block shown)
-- self.order_set = block_config.order_set
+- order_set
 	- The order set being used for this block
-- self.prime_folder = block_config.prime_folder
+- prime_folder 
 	- The folder where prime images are being taken from for this block.
 
 
@@ -117,21 +117,21 @@ When the user wants to identify something, they press space and type in what the
 Along with all the config variables, the following things are also saved for the post task:
 
 #### Trial data
-- self.image_folder_path
+- image_folder_path
 	- The path to the folder containing the images for this trial
-- self.image_name
+- image_name
 	- The name of the image being shown in this trial
-- self.set
+- set
 	- The set of images that the image being shown for this trial is from (A or B)
-- self.appeared_in_n_back_task
+- appeared_in_n_back_task
 	- Whether this image was shown in the n-back task or not
-- self.position
+- position
 	- The position of this trial relative to all other trials for the experiment (i if this is the ith trial) 
-- self.difficulty
+- difficulty
 	- The difficulty level where the participant wrote what they thought the image was.
-- self.user_response = None
+- user_response 
 	- What the participants thought the image was
-- self.reaction_time = None
+- reaction_time
 	- How long it took for the participants to press space indicating they want to write what they think the image is. Calculated from when the most recent resolution of the image was shown. If they did not press space ever, will be none.
 
 ## visual.py
